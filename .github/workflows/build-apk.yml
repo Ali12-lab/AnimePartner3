@@ -17,6 +17,26 @@ jobs:
           test -f index.html || { echo "index.html repo me nahi mila — pehle 8 files upload karo"; exit 1; }
           ls -la
 
+      # ---------------------------------------------------------------
+      # SAFETY GATE — gradle build se PEHLE.
+      # Ek toota hua index.html 5 minute ka Android build zaya karta hai aur
+      # phir ek aisi APK banati hai jo phone par white-screen deti hai.
+      # Ye step ~10 second me pakad leta hai.
+      # ---------------------------------------------------------------
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Verify the app before building (syntax, versions, nav, manifest)
+        run: |
+          node tools/verify.mjs || {
+            echo ""
+            echo "❌ APK build rok di gayi — app me masla hai."
+            echo "   Upar dekho ke kaunsa ✘ laal hai."
+            echo "   Locally: node tools/verify.mjs"
+            exit 1
+          }
+
       - uses: actions/setup-java@v4
         with:
           distribution: temurin

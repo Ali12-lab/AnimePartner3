@@ -1,0 +1,42 @@
+name: Safety Check
+
+# Har push aur PR par automatic. Ye workflow app ko CHANGE nahi karta —
+# sirf tools/verify.mjs chalata hai. ~10 second me khatam hota hai.
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Repo integrity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run the safety checker
+        run: node tools/verify.mjs
+
+      # Agar verify fail ho to upar wala step hi job fail kar dega.
+      # Ye sirf ek saaf message dene ke liye hai.
+      - name: Failure hint
+        if: failure()
+        run: |
+          echo ""
+          echo "❌ Safety check fail ho gaya."
+          echo ""
+          echo "Upar dekho ke kaunsa ✘ laal hai. Aam taur par ye hota hai:"
+          echo "  • Version drift  → 5 jagah version update karo (README me table hai)"
+          echo "  • SyntaxError    → index.html me JS toota hua hai"
+          echo "  • Missing view   → NAV me id add kiya lekin AP.Views handler nahi banaya"
+          echo ""
+          echo "Locally reproduce karne ke liye:  node tools/verify.mjs"
+          exit 1
