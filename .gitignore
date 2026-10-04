@@ -1,0 +1,71 @@
+# ---------------------------------------------------------------
+# Anime Partner — .gitignore
+# Ye repo deliberately minimal hai: sirf wahi files jo app chalane
+# aur APK banane ke liye zaroori hain. Baaki sab ignore.
+# ---------------------------------------------------------------
+
+# --- OS junk ---
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# --- editors ---
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+.project
+.settings/
+
+# --- logs ---
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- Node (agar kabhi tooling add ho) ---
+node_modules/
+.npm/
+.yarn/
+.pnp.*
+coverage/
+.nyc_output/
+
+# --- Android / Gradle build output ---
+# build-apk.yml ye sab CI me khud generate karta hai; repo me nahi aana chahiye
+android/
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+.gradle/
+local.properties
+keystore.properties
+*.jks
+*.keystore
+
+# --- secrets: kabhi commit NA karein ---
+.env
+.env.*
+!.env.example
+*.pem
+*.p12
+secrets.*
+api-keys.*
+
+# --- scratch / temporary ---
+tmp/
+temp/
+scratch/
+*.bak
+*.orig
+*.tmp
