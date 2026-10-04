@@ -1,1 +1,221 @@
+name: Build APK
 
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check that the app files are in the repo
+        run: |
+          test -f index.html || { echo "index.html repo me nahi mila — pehle 8 files upload karo"; exit 1; }
+          ls -la
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools platforms;android-34 build-tools;34.0.0'
+
+      - name: Create the Android wrapper project
+        run: |
+          set -e
+          mkdir -p android/app/src/main/java/com/shin/animepartner
+          mkdir -p android/app/src/main/res/values
+          mkdir -p android/app/src/main/res/mipmap-xxxhdpi
+          mkdir -p android/app/src/main/assets
+
+          # --- the whole web app goes inside the APK (works fully offline) ---
+          cp index.html android/app/src/main/assets/
+          cp manifest.webmanifest android/app/src/main/assets/ 2>/dev/null || true
+          cp sw.js android/app/src/main/assets/ 2>/dev/null || true
+          cp icon-*.png android/app/src/main/assets/ 2>/dev/null || true
+
+          # --- launcher icon ---
+          cp icon-512.png android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
+          cp icon-512.png android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png
+
+          cat > android/settings.gradle <<'EOF'
+          rootProject.name = "AnimePartner"
+          include ':app'
+          EOF
+
+          cat > android/build.gradle <<'EOF'
+          buildscript {
+            repositories { google(); mavenCentral() }
+            dependencies { classpath 'com.android.tools.build:gradle:8.3.2' }
+          }
+          allprojects { repositories { google(); mavenCentral() } }
+          EOF
+
+          cat > android/gradle.properties <<'EOF'
+          android.useAndroidX=true
+          org.gradle.jvmargs=-Xmx3g
+          EOF
+
+          cat > android/app/build.gradle <<'EOF'
+          apply plugin: 'com.android.application'
+          android {
+            namespace 'com.shin.animepartner'
+            compileSdk 34
+            defaultConfig {
+              applicationId "com.shin.animepartner"
+              minSdk 23
+              targetSdk 34
+              versionCode 170
+              versionName "1.7.0"
+            }
+            compileOptions {
+              sourceCompatibility JavaVersion.VERSION_17
+              targetCompatibility JavaVersion.VERSION_17
+            }
+            buildTypes { release { minifyEnabled false } }
+          }
+          dependencies { implementation 'androidx.webkit:webkit:1.10.0' }
+          EOF
+
+          cat > android/app/src/main/res/values/strings.xml <<'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <resources>
+            <string name="app_name">Anime Partner</string>
+          </resources>
+          EOF
+
+          cat > android/app/src/main/res/values/styles.xml <<'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <resources>
+            <style name="AppTheme" parent="@android:style/Theme.Material.NoActionBar">
+              <item name="android:statusBarColor">#0b0712</item>
+              <item name="android:navigationBarColor">#0b0712</item>
+              <item name="android:windowBackground">#0b0712</item>
+            </style>
+          </resources>
+          EOF
+
+          cat > android/app/src/main/AndroidManifest.xml <<'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+            <uses-permission android:name="android.permission.INTERNET"/>
+            <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+            <application
+              android:label="@string/app_name"
+              android:icon="@mipmap/ic_launcher"
+              android:roundIcon="@mipmap/ic_launcher_round"
+              android:theme="@style/AppTheme"
+              android:hardwareAccelerated="true"
+              android:allowBackup="true">
+              <activity
+                android:name=".MainActivity"
+                android:exported="true"
+                android:screenOrientation="portrait"
+                android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode|density">
+                <intent-filter>
+                  <action android:name="android.intent.action.MAIN"/>
+                  <category android:name="android.intent.category.LAUNCHER"/>
+                </intent-filter>
+              </activity>
+            </application>
+          </manifest>
+          EOF
+
+          cat > android/app/src/main/java/com/shin/animepartner/MainActivity.java <<'EOF'
+          package com.shin.animepartner;
+
+          import android.app.Activity;
+          import android.content.Intent;
+          import android.net.Uri;
+          import android.os.Bundle;
+          import android.webkit.WebResourceRequest;
+          import android.webkit.WebResourceResponse;
+          import android.webkit.WebChromeClient;
+          import android.webkit.WebSettings;
+          import android.webkit.WebView;
+          import android.webkit.WebViewClient;
+          import androidx.webkit.WebViewAssetLoader;
+
+          public class MainActivity extends Activity {
+
+            private WebView web;
+            private static final String HOST = "appassets.androidplatform.net";
+
+            @Override
+            protected void onCreate(Bundle state) {
+              super.onCreate(state);
+
+              final WebViewAssetLoader loader = new WebViewAssetLoader.Builder()
+                  .setDomain(HOST)
+                  .addPathHandler("/assets/", new WebViewAssetLoader.AssetsPathHandler(this))
+                  .build();
+
+              web = new WebView(this);
+              WebSettings s = web.getSettings();
+              s.setJavaScriptEnabled(true);
+              s.setDomStorageEnabled(true);
+              s.setDatabaseEnabled(true);
+              s.setMediaPlaybackRequiresUserGesture(false);
+              s.setSupportMultipleWindows(false);
+              s.setCacheMode(WebSettings.LOAD_DEFAULT);
+
+              web.setWebChromeClient(new WebChromeClient());
+              web.setWebViewClient(new WebViewClient() {
+                @Override
+                public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest req) {
+                  return loader.shouldInterceptRequest(req.getUrl());
+                }
+                @Override
+                public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest req) {
+                  Uri u = req.getUrl();
+                  if (HOST.equals(u.getHost())) return false;
+                  try { startActivity(new Intent(Intent.ACTION_VIEW, u)); } catch (Exception ignored) {}
+                  return true;
+                }
+              });
+
+              setContentView(web);
+              web.loadUrl("https://" + HOST + "/assets/index.html");
+            }
+
+            @Override
+            public void onBackPressed() {
+              if (web != null && web.canGoBack()) web.goBack();
+              else super.onBackPressed();
+            }
+          }
+          EOF
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+
+      - name: Build the APK
+        working-directory: android
+        run: gradle assembleDebug --no-daemon --stacktrace
+
+      - name: Rename the APK
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk AnimePartner-v1.7.0.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AnimePartner-APK
+          path: AnimePartner-v1.7.0.apk
+
+      - name: Publish it as a Release (direct download, no zip)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: apk-${{ github.run_number }}
+          name: Anime Partner APK (build ${{ github.run_number }})
+          body: |
+            Anime Partner v1.7.0 — Developed by Shin
+            Phone par install karo: APK download -> "Unknown sources" allow -> Install.
+            Poori app APK ke andar hai, internet ke baghair chalti hai.
+          files: AnimePartner-v1.7.0.apk
+          
