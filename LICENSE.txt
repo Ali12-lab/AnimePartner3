@@ -1,0 +1,40 @@
+Anime Partner
+Copyright (c) 2026 Shin. All rights reserved.
+
+This software and everything in it that was written for it — the source code,
+the interface, the layout, the written text, the original lines, the quiz
+questions, the grammar lessons, the icons and the arrangement of the data —
+is the work of the developer and is protected by copyright.
+
+YOU MAY
+  - use the app freely, for as long as you like, on as many of your own
+    devices as you like;
+  - keep your own copy of the file, back it up, and carry it between your
+    own devices;
+  - link to the official release;
+  - study it and ask for changes.
+
+YOU MAY NOT
+  - copy, clone, re-skin or republish this app, in whole or in substantial
+    part, as your own work;
+  - sell it, rent it, or bundle it into a paid product or a paid app-store
+    listing;
+  - remove or hide the developer credit, this notice, or the in-app policies;
+  - redistribute a modified copy.
+
+OTHER PEOPLE'S RIGHTS
+Anime titles, characters, posters, logos, studio names and platform names
+belong to their respective owners. Anime Partner is an independent fan tool,
+not affiliated with, endorsed by or sponsored by any studio, publisher,
+streaming service or rights holder. It hosts no episodes and links only to
+official, licensed services. Book text is shown only for works in the public
+domain or published under a free licence. Lines with no known source are
+credited as Unknown rather than given an invented one.
+
+NO WARRANTY
+The software is provided "as is", without warranty of any kind. It is a
+personal project, not a commercial service, and the developer is not liable
+for any loss arising from its use. All data lives in the browser's own
+storage on your device — keep your own backups.
+
+Contact: Instagram @shin.ali96
