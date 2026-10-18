@@ -2,9 +2,8 @@
 
 Your personal anime companion — tracker, recommendations, Japanese lessons, games and a daily routine. One file, no account, works offline.
 
-**[▶ Open the app](https://SHIN.github.io/anime-partner/)** · **[⬇ Download the Android app (APK)](https://SHIN.github.io/anime-partner/anime-partner.apk)**
+**[▶ Open the app](https://SHIN.github.io/anime-partner/)** · **[⬇ Download the Android app (APK)](https://Ali12-lab.github.io/anime-partner/anime-partner.apk)**
 
-> Replace `SHIN` in both links with your own GitHub username once the repository is live.
 
 ---
 
@@ -18,13 +17,11 @@ Anime Partner is a single HTML file. Open it and it runs: there is no sign-up, n
 - **Learn Japanese** — kana charts, 84 anime phrases with real pronunciation, vocabulary, spaced-repetition flashcards, 40 kanji, a 34-unit path, **14 grammar points** and **speaking practice** with scoring where the browser supports it, honest shadowing practice where it does not.
 - **Games** — 14 built-in games including a full chess board with verified puzzles, plus a large online arcade.
 - **Coins & XP** — XP is your rank, coins are what you earn. A daily ladder, a cap on game earnings, and no gambling mechanics, no energy timers, no fake scarcity.
-- **Novels** — 443 public-domain books readable in the app, and modern titles listed with legal links only.
+- **Novels** —  books readable in the app, and modern titles listed with legal links only.
 - **Reminders** — a daily nudge at a time you choose, plus a calendar file the phone's own alarm can run even when the app is closed.
 - **Offline** — Tracker, Settings, built-in games and Japanese all work with no connection. Nothing is downloaded behind your back; artwork is only fetched when you ask for it.
 
-## Install
 
-**On a phone (recommended)** — open the link above in Chrome, then *Menu → Add to Home screen*. It installs as an app, launches full-screen and works offline.
 
 **As an Android app** — download `anime-partner.apk` from the link above, open it, and allow installation from your browser when Android asks. The APK is the same app with the whole thing bundled inside it, so it works with no connection at all.
 
