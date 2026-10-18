@@ -1,1 +1,48 @@
+# Anime Partner — publish the site to GitHub Pages.
+#
+# This file is OPTIONAL. If Settings -> Pages is set to "Deploy from a branch",
+# GitHub already publishes the repository and you do not need this workflow.
+# Use it only if you set Settings -> Pages -> Source to "GitHub Actions":
+# then every push to main republishes the site automatically, and the Actions
+# tab shows you whether it worked.
+#
+# There is nothing to compile: the app is one self-contained index.html, so the
+# job simply uploads the repository as it stands.
 
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:        # lets you run it by hand from the Actions tab
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload the site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'        # the whole repo: index.html, sw.js, icons, the APK
+
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
